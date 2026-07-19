@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Raw data and large derived data
+/data/raw/
+/data/duckdb/
+*.duckdb
+*.parquet
+/graphs/*.csv
+
+# Logs and regenerable figures
+*.log
+analysis/fig_*.png
