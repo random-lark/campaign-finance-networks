@@ -1,6 +1,6 @@
 # campaign-finance-networks
 
-In this project I model campaign finance as an absorbing Markov chain. As such, "follow the money" means "follow the random walk of money." Using this model, I empirically infer entity ideologies and subsequently compare Democratic and Republican random walk dynamics.  
+In this project I model campaign finance as an absorbing Markov chain. As such, to "follow the money" is to follow the random walk of money. Using this model, I empirically infer entity ideologies and subsequently compare Democratic and Republican random walk dynamics.  
 
 To run my data pipeline, run `data/download_data.sh` (this downloads and cleans the 2000-2022 FEC data) then `data/process_data.sh` (this prepares the data for use by `igraph`). Run the analyses in `analysis/analysis.ipynb`. 
 
