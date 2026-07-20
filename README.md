@@ -1,6 +1,8 @@
 # campaign-finance-networks
 
-In this project I model campaign finance as an absorbing Markov chain in which candidates are the absorbing states. As such, to "follow the money" is to follow the random walk of money. Using this model, I empirically infer entity ideologies and subsequently compare Democratic and Republican random walk dynamics.  
+In this project I model FEC campaign finance data as an absorbing Markov chain in which candidates are the absorbing states. As such, to "follow the money" is to follow the random walk of money. But most committees' political affiliation are unknown. Using this model, I (1) empirically infer entity ideologies and subsequently (2) compare Democratic and Republican random walk dynamics.  
+
+My takeaways: Individual ideology is an emergent feature of the whole network. While Democratic and Republican dollars take paths of similar lengths, Republican paths end in more in-party candidates (despite Democrats having more candidates overall) and more easily cross the political boundary than Democratic ones. 
 
 To run my data pipeline, run `data/download_data.sh` (this downloads and cleans the 2000-2022 FEC data) then `data/process_data.sh` (this prepares the data for use by `igraph`). Run the analyses in `analysis/analysis.ipynb`. 
 
