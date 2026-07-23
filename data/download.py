@@ -48,8 +48,9 @@ YEARS = list(range(2000, 2023, 2))              # 2000, 2002, ..., 2022
 KEEP_RAW_FILES = False                          # Delete the multi-GB unzipped indiv file after extraction
 BASE_URL = "https://www.fec.gov/files/bulk-downloads"
 
-# Restrict the whole pipeline to the 50 states + DC.
-# Entities not from these are dropped, along with edges involving them. 
+# Restrict the whole pipeline to the 50 states + DC (plus presidential candidates, whose office
+# state is 'US' -- the only nodes with that state). Entities not from these are dropped, along
+# with edges involving them.
 ALLOWED_STATES = {
     "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY",
     "LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND",
@@ -295,17 +296,20 @@ def build_cycle(year: int) -> None:
     print(f"    nodes: {con.execute('SELECT COUNT(*) FROM nodes').fetchone()[0]:,}")
 
     # 6) RESTRICT to 50 states + DC, and drop unregistered committees ---------------------
-    # Exclude (a) nodes whose state is a known non-allowed place (territories / 'US' / foreign),
-    # and (b) committee ids (C...) absent from THIS cycle's committee master cm -- i.e. not
-    # registered/active this cycle (defunct/ghost committees that only appear as a recipient
-    # because another filer named them). Candidate nodes missing from cn are KEPT (their state
-    # is parsed from the id above). Drop edges touching excluded ids, then trim to referenced.
-    print("[4] restricting to 50 states + DC; dropping committees not in this cycle's cm")
+    # Exclude (a) nodes whose state is a known non-allowed place (territories / foreign) -- but
+    # KEEP presidential candidates (id 'P...', whose office state is 'US'; they are the only 'US'
+    # nodes and are valid DEM/REP absorbing seeds), and (b) committee ids (C...) absent from THIS
+    # cycle's committee master cm -- i.e. not registered/active this cycle (defunct/ghost
+    # committees that only appear as a recipient because another filer named them). Candidate
+    # nodes missing from cn are KEPT (their state is parsed from the id above). Drop edges
+    # touching excluded ids, then trim to referenced.
+    print("[4] restricting to 50 states + DC (+ presidential candidates); dropping committees not in cm")
     allowed_sql = "(" + ",".join(f"'{s}'" for s in sorted(ALLOWED_STATES)) + ")"
     con.execute(f"""
         CREATE OR REPLACE TABLE excluded_ids AS
         SELECT id FROM nodes
-        WHERE (state IS NOT NULL AND state <> '' AND state NOT IN {allowed_sql})   -- territories / 'US' / foreign
+        WHERE (state IS NOT NULL AND state <> '' AND state NOT IN {allowed_sql}
+               AND id NOT LIKE 'P%')                                              -- territories/foreign; keep presidential cands ('US')
            OR (id LIKE 'C%' AND id NOT IN (SELECT CMTE_ID FROM cm))                -- committee not registered this cycle
     """)
     n_excl = con.execute("SELECT COUNT(*) FROM excluded_ids").fetchone()[0]
